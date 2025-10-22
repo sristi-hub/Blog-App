@@ -25,20 +25,24 @@ class CategoryViews(APIView):
         serializer = CategorySerializer(categories, many = True)
         return Response(serializer.data)
     
-@extend_schema(request = PostListSerializer, tags = ['Posts'], summary= 'View all posts')
+@extend_schema(responses = PostListSerializer, tags = ['Posts'], summary= 'View all published posts')
 class PostListAPIView(generics.ListAPIView):
     queryset = Post.objects.all()
     permission_classes = [AllowAny]
     serializer_class = PostListSerializer
     
-    def list(self, request, *args, **kargs):
+    def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         serializer = PostListSerializer(queryset, many = True)
         return Response({
             'count': queryset.count(),
             'results':serializer.data
             })
-    
+        
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(status = 'published')
+
 
 @extend_schema(request = PostListSerializer, tags = ['Posts'], summary= 'View particular post by Id')
 class RetrievePost(generics.RetrieveAPIView):
@@ -53,8 +57,8 @@ class RetrievePost(generics.RetrieveAPIView):
 #     serializer_class = PostListSerializer
 #     lookup_field = 'author'
    
-@extend_schema(request = PostListSerializer, tags = ['Posts'], summary = 'View user posts')
-class UserPostListAPIView(generics.ListAPIView):
+@extend_schema(responses = PostListSerializer, tags = ['Posts'], summary = 'View user published posts')
+class User_Pub_PostListAPIView(generics.ListAPIView):
     queryset = Post.objects.all()
     permission_classes = [IsAuthenticated]
     serializer_class = PostListSerializer
@@ -62,7 +66,18 @@ class UserPostListAPIView(generics.ListAPIView):
     def get_queryset(self):
         user = self.request.user 
         qr = super().get_queryset()
-        return qr.filter(author = user)
+        return qr.filter(author = user, status = 'published')
+
+@extend_schema(responses = PostListSerializer, tags = ['Posts'], summary = 'View user draft posts')
+class User_Draft_PostListAPIView(generics.ListAPIView):
+    queryset = Post.objects.all()
+    permission_classes = [IsAuthenticated]
+    serializer_class = PostListSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        qr = super().get_queryset()
+        return qr.filter(author = user, status = 'draft')
 
 # @extend_schema(
 #     parameters=[
@@ -113,7 +128,7 @@ class PostDeleteAPIView(generics.DestroyAPIView):
         qs = super().get_queryset()
         return qs.filter(author = user)
     
-@extend_schema(request = PostListSerializer, tags = ['Posts'], summary = 'Edit post')   
+@extend_schema(request = PostCreateSerializer, responses = PostListSerializer, tags = ['Posts'], summary = 'Edit post')   
 class PostEditAPIView(generics.UpdateAPIView):
     queryset = Post.objects.all()
     permission_classes = [IsAuthenticated]
@@ -127,11 +142,13 @@ class PostEditAPIView(generics.UpdateAPIView):
 
 @extend_schema(request = PostListSerializer, tags = ['Posts'], summary= 'Filter post')
 class FilterView(generics.ListAPIView):
-    queryset = Post.objects.all()
+    queryset = Post.objects.filter(status = 'published')
     permission_classes = [AllowAny]
     serializer_class = PostListSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = PostFilter
+
+
 
 
 

@@ -17,7 +17,8 @@ class PostCreateSerializer(serializers.ModelSerializer):
         fields = [
             'title',
             'content',
-            'category'
+            'category',
+            'status'
         ]
     
         
