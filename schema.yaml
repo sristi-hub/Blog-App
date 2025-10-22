@@ -1,0 +1,544 @@
+openapi: 3.0.3
+info:
+  title: WordNest
+  version: 1.0.0
+paths:
+  /auth/generate-token/:
+    post:
+      operationId: auth_generate_token_create
+      summary: Generate token for email verification
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateToken'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GenerateToken'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GenerateToken'
+        required: true
+      security:
+      - Bearer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerateToken'
+          description: ''
+  /auth/login/:
+    post:
+      operationId: auth_login_create
+      summary: Login with existing credentials.
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Login'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Login'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Login'
+          description: ''
+  /auth/register/:
+    post:
+      operationId: auth_register_create
+      summary: Create a new user.
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserCreate'
+          description: ''
+  /auth/user/:
+    get:
+      operationId: auth_user_retrieve
+      summary: Get currently logged in user details.
+      tags:
+      - Authentication
+      security:
+      - Bearer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserGet'
+          description: ''
+  /auth/verify-email:
+    post:
+      operationId: auth_verify_email_create
+      summary: Verify email using token
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyEmail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/VerifyEmail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/VerifyEmail'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyEmail'
+          description: ''
+  /posts/category/:
+    get:
+      operationId: posts_category_retrieve
+      summary: Get post categories
+      tags:
+      - Posts
+      security:
+      - jwtAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+  /posts/mine-postslist/:
+    get:
+      operationId: posts_mine_postslist_list
+      summary: View user posts
+      tags:
+      - Posts
+      security:
+      - jwtAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PostList'
+          description: ''
+  /posts/post-create/:
+    post:
+      operationId: posts_post_create_create
+      summary: Create a new post
+      tags:
+      - Posts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PostCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PostCreate'
+        required: true
+      security:
+      - jwtAuth: []
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostCreate'
+          description: ''
+  /posts/post-delete/{id}:
+    delete:
+      operationId: posts_post_delete_destroy
+      summary: Delete post by id
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Posts
+      security:
+      - Bearer
+      responses:
+        '204':
+          description: No response body
+  /posts/post-update/{id}/:
+    put:
+      operationId: posts_post_update_update
+      summary: Edit post
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Posts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostList'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PostList'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PostList'
+        required: true
+      security:
+      - jwtAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostCreate'
+          description: ''
+    patch:
+      operationId: posts_post_update_partial_update
+      summary: Edit post
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Posts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPostList'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPostList'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPostList'
+      security:
+      - jwtAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostCreate'
+          description: ''
+  /posts/postfilter/:
+    get:
+      operationId: posts_postfilter_list
+      summary: Filter post
+      parameters:
+      - in: query
+        name: author__full_name
+        schema:
+          type: string
+      - in: query
+        name: category__name
+        schema:
+          type: string
+      - in: query
+        name: content
+        schema:
+          type: string
+      - in: query
+        name: created_at
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: created_at__gt
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: created_at_range_after
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: created_at_range_before
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: title
+        schema:
+          type: string
+      tags:
+      - Posts
+      security:
+      - jwtAuth: []
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PostList'
+          description: ''
+  /posts/postslist/:
+    get:
+      operationId: posts_postslist_list
+      summary: View all posts
+      tags:
+      - Posts
+      security:
+      - jwtAuth: []
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PostList'
+          description: ''
+  /posts/postslist/{id}:
+    get:
+      operationId: posts_postslist_retrieve
+      summary: View particular post by Id
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Posts
+      security:
+      - jwtAuth: []
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostList'
+          description: ''
+components:
+  schemas:
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 50
+        description:
+          type: string
+      required:
+      - id
+      - name
+    GenerateToken:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      required:
+      - email
+    Login:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          writeOnly: true
+      required:
+      - email
+      - password
+    PatchedPostList:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 100
+        content:
+          type: string
+        author:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+        category:
+          type: string
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+    PostCreate:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 100
+        content:
+          type: string
+        category:
+          type: integer
+      required:
+      - category
+      - content
+      - title
+    PostList:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 100
+        content:
+          type: string
+        author:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+        category:
+          type: string
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+      required:
+      - author
+      - category
+      - content
+      - id
+      - title
+    StatusEnum:
+      enum:
+      - draft
+      - published
+      type: string
+      description: |-
+        * `draft` - Draft
+        * `published` - Published
+    UserCreate:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 255
+        password:
+          type: string
+          maxLength: 128
+        full_name:
+          type: string
+          maxLength: 255
+        contact:
+          type: string
+          pattern: ^9\d{9}$
+          maxLength: 10
+      required:
+      - email
+      - password
+    UserGet:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 255
+        full_name:
+          type: string
+          maxLength: 255
+        contact:
+          type: string
+          pattern: ^9\d{9}$
+          maxLength: 10
+        is_verified:
+          type: boolean
+        last_login:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        user_permissions:
+          type: array
+          items:
+            type: integer
+          description: Specific permissions for this user.
+        is_active:
+          type: boolean
+      required:
+      - created_at
+      - email
+    VerifyEmail:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        token:
+          type: string
+          maxLength: 6
+      required:
+      - email
+      - token
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
