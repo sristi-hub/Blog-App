@@ -23,6 +23,3 @@ db.sqlite3
 /media/
 staticfiles/
 
-# Optional: IDE files
-.vscode/
-.idea/
