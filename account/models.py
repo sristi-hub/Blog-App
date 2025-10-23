@@ -33,15 +33,30 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['full_name']
 
-class VerifyToken(models.Model):
-    user = models.ForeignKey(User, on_delete = models.CASCADE, null = True, related_name = 'verify_tokens')
-    token = models.CharField(max_length = 6, null = True)
-    created_at = models.DateTimeField(default = timezone.now())
-    expired_at = models.DateTimeField(default = (timezone.now() + timedelta(minutes = 15)))
+
+def get_expiry_time():
+        return timezone.now() + timedelta(minutes = 15)
+
+
+class BaseToken(models.Model):
+    user = models.ForeignKey(User, on_delete = models.CASCADE, null = True, related_name = '%(class)s_token')
+    token = models.CharField(max_length = 6, null = True, unique = True)
+    created_at = models.DateTimeField(default = timezone.now)
+    expired_at = models.DateTimeField(default = get_expiry_time)
     
     def is_expired(self):
         return timezone.now() > self.expired_at
 
     def __str__(self):
         return f"{self.user.email} - {self.token}"
+    
+    class Meta:
+        abstract = True
+
+class EmailVerificationToken(BaseToken):
+    pass
+
+
+class ForgotPasswordToken(BaseToken):
+    pass
 
