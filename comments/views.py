@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import status
 from posts.models import Post
 from .models import Comment
-from .serializers import CommentCreateSerializer, CommentsListSerializer
+from .serializers import CommentCreateSerializer, CommentsListSerializer, UserCommentsListSerialzier
 from drf_spectacular.utils import extend_schema
 # Create your views here.
 
@@ -35,4 +35,14 @@ class CommentsListView(APIView):
     def get(self, request, post_id):
         comments = Comment.objects.filter(post_id = post_id)
         serializer = CommentsListSerializer(comments, many = True)
+        return Response(serializer.data, status = status.HTTP_200_OK)
+    
+class UserCommentsListView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserCommentsListSerialzier
+
+    @extend_schema(responses= UserCommentsListSerialzier, tags = ['Comments'], summary = 'To get logged in user all comments')
+    def get(self, request):
+        comments = Comment.objects.filter(user = request.user). select_related('post')
+        serializer = UserCommentsListSerialzier(comments, many = True)
         return Response(serializer.data, status = status.HTTP_200_OK)

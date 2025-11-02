@@ -27,3 +27,17 @@ class CommentCreateSerializer(serializers.Serializer):
         user = self.context['user']
         post = self.context['post'] 
         return Comment.objects.create(user = user, post = post, **validated_data)
+    
+class UserCommentsListSerialzier(serializers.ModelSerializer):
+    post = serializers.SerializerMethodField()
+    class Meta:
+        model = Comment
+        fields = [
+            'content',
+            'post',
+            'created_at',
+            'updated_at'
+        ]
+
+    def get_post(self, obj):
+        return obj.post.title
