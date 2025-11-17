@@ -26,14 +26,16 @@ class CommentCreateView(APIView):
             serializer.save()    
             return Response({'message':'Comment is sent'}, status = status.HTTP_201_CREATED)
         return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+
+        
     
 class CommentsListView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = CommentsListSerializer
 
-    @extend_schema(responses = CommentsListSerializer, tags = ['Comments'], summary = 'List all comments of a post')
+    @extend_schema(responses = CommentsListSerializer, tags = ['Comments'], summary = 'List comments (with replies) of a post')
     def get(self, request, post_id):
-        comments = Comment.objects.filter(post_id = post_id)
+        comments = Comment.objects.filter(post_id = post_id, parent = None)
         serializer = CommentsListSerializer(comments, many = True)
         return Response(serializer.data, status = status.HTTP_200_OK)
     
@@ -43,6 +45,10 @@ class UserCommentsListView(APIView):
 
     @extend_schema(responses= UserCommentsListSerialzier, tags = ['Comments'], summary = 'To get logged in user all comments')
     def get(self, request):
-        comments = Comment.objects.filter(user = request.user). select_related('post')
-        serializer = UserCommentsListSerialzier(comments, many = True)
-        return Response(serializer.data, status = status.HTTP_200_OK)
+        allcomments = Comment.objects.filter(user = request.user). select_related('post')
+        comments = allcomments.filter(parent__isnull = True)
+        replies = allcomments.filter(parent__isnull = False)
+        return Response({
+            "comments": UserCommentsListSerialzier(comments, many = True).data,
+            "replies": UserCommentsListSerialzier(replies, many = True).data,
+        }, status = status.HTTP_200_OK)

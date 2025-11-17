@@ -22,3 +22,8 @@ class Comment(models.Model):
    
     def __str__(self):
         return f'Comment by {self.user.full_name} to the post {self.post.title}'
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    
