@@ -15,6 +15,7 @@ class CommentReplySerializer(serializers.ModelSerializer):
             'updated_at',
         ]
 
+    @extend_schema_field(serializers.CharField())
     def get_user_name(self, obj):
         return obj.user.full_name
 
@@ -76,9 +77,18 @@ class UserCommentsListSerialzier(serializers.ModelSerializer):
             'parent_comment',
         ]
 
+    @extend_schema_field(serializers.CharField())
     def get_post(self, obj):
         return obj.post.title
     
+    @extend_schema_field({
+        'type': 'object',
+        'properties': {
+            'id': {'type': 'integer'},
+            'content': {'type': 'string'}
+        },
+        'nullable': True
+    })
     def get_parent_comment(self, obj):
         if obj.parent:
             return{
