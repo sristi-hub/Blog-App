@@ -2,8 +2,8 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from posts.models import Post
-from .models import PostLike
-from .serializers import PostLikeSerializer, UserLikeSerializer
+from .models import PostLike, Bookmark
+from .serializers import PostLikeSerializer, UserLikeSerializer, UserBookmarkSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from drf_spectacular.utils import extend_schema
@@ -63,8 +63,9 @@ class PostLikeView(APIView):
     
 class UserLikeView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_classes = UserLikeSerializer
 
-    @extend_schema(responses = UserLikeSerializer, tags = ['Interactions'], summary = "To get all likes from the user")
+    @extend_schema(responses = UserLikeSerializer, tags = ['Interactions'], summary = "To get user all likes")
     def get(self, request):
         user = request.user
         mytotallikes = user.mylikes.all()
@@ -78,4 +79,48 @@ class UserLikeView(APIView):
             },
             status = status.HTTP_200_OK)
 
-            
+class PostBookmarkCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(tags = ['Interactions'], summary = "To bookmark the post")
+    def post(self, request, post_id):
+        try:
+            post = Post.objects.get(id = post_id)
+        
+        except Post.DoesNotExist:
+            return Response(
+                {'message':"Post doesn't exists"},
+                status = status.HTTP_404_NOT_FOUND
+            )
+        bookmark_obj = Bookmark.objects.filter(post = post, user = request.user).first()
+        if bookmark_obj:
+            bookmark_obj.delete()
+            return Response(
+                {'message':'You unsaved the post'},
+                status = status.HTTP_200_OK
+            )
+        else:
+            Bookmark.objects.create(post = post, user = request.user)
+
+        return Response(
+            {'message': "You bookmarked/saved the post"},
+            status = status.HTTP_201_CREATED
+        )
+    
+class UserBookmarkView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_classes = UserBookmarkSerializer
+
+    @extend_schema(responses = UserBookmarkSerializer, tags = ['Interactions'], summary = "To list user all bookmarks")
+    def get(self, request):
+        user = request.user
+        bookmarked_posts = user.mybookmarks.all()
+        serializer = UserBookmarkSerializer(bookmarked_posts, many = True)
+        bookmark_count = bookmarked_posts.count()
+
+        return Response(
+            {'bookmark_count':bookmark_count,
+            'post':serializer.data},
+            status = status.HTTP_200_OK)
+
+

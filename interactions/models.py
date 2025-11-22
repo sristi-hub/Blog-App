@@ -14,3 +14,13 @@ class PostLike(models.Model):
         constraints = [
             models.UniqueConstraint(fields = ['post', 'user'], name = "unique_post_like")
         ]
+
+class Bookmark(models.Model):
+    post = models.ForeignKey(Post, on_delete = models.CASCADE, related_name= 'bookmarks')
+    user = models.ForeignKey(User, on_delete = models.CASCADE, related_name = 'mybookmarks')
+    created_at = models.DateTimeField(auto_now_add = True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields = ['post', 'user'], name = "unique_user_post_bookmark")
+        ]

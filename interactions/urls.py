@@ -4,5 +4,7 @@ from . import views
 urlpatterns = [
     path('like/<int:post_id>/', views.LikePostView.as_view()),
     path('totallike/<int:post_id>/', views.PostLikeView.as_view()),
-    path('mylikes/', views.UserLikeView.as_view())
+    path('mylikes/', views.UserLikeView.as_view()),
+    path('bookmarks/<int:post_id>/', views.PostBookmarkCreateView.as_view()),
+    path('mybookmarks/', views.UserBookmarkView.as_view()),
 ]
