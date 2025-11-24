@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import PostLike, Bookmark
+from .models import PostLike, Bookmark, Follow
 from account.models import User
 from posts.models import Post
 from drf_spectacular.utils import extend_schema_field
@@ -37,3 +37,26 @@ class UserBookmarkSerializer(serializers.ModelSerializer):
             'post',
             'created_at'
         ]
+
+class UserFollowerSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
+    class Meta:
+        model = Follow
+        fields = [
+            'user'
+        ]
+    
+    def get_user(self, obj):
+        return obj.user.full_name
+    
+class UserFollowingSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
+    class Meta:
+        model = Follow
+        fields = [
+            'user'
+        ]
+    
+    def get_user(self, obj):
+        return obj.author.full_name
+    

@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q, F
 from account.models import User
 from posts.models import Post
 
@@ -23,4 +24,20 @@ class Bookmark(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(fields = ['post', 'user'], name = "unique_user_post_bookmark")
+        ]
+
+class Follow(models.Model):
+    user = models.ForeignKey(User, on_delete= models.CASCADE, related_name = 'following')
+    author = models.ForeignKey(User, on_delete = models.CASCADE, related_name= 'followers')
+    created_at = models.DateTimeField(auto_now_add = True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields = ['user', 'author'], name = "unique_user_author_follow"
+                ),
+            models.CheckConstraint(
+                check = ~Q(user = F('author')),
+                name = "prevent_self_follow"
+            )
         ]
