@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User, EmailVerificationToken, ForgotPasswordToken
-from account.serializers import UserCreateSerializer, UserGetSerializer, LoginSerializer, VerifyEmailSerializer, GenerateTokenSerializer, PasswordResetSerializer
+from account.serializers import UserCreateSerializer, UserGetSerializer, LoginSerializer, LogoutSerialzier, VerifyEmailSerializer, GenerateTokenSerializer, PasswordResetSerializer
 from rest_framework.permissions import AllowAny, IsAuthenticated
 import random
 from django.core.mail import send_mail
@@ -109,6 +109,27 @@ class LoginView(APIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
         return generate_tokens(user, 'Login success.')
+    
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(request = LogoutSerialzier, tags = ['Authentication'], summary = "To Logout")
+    def post(self, request):
+        try:
+            refresh_serializer = LogoutSerialzier(data = request.data)
+            refresh_serializer.is_valid(raise_exception= True)
+            refresh_token = refresh_serializer.validated_data['refresh']
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response(
+                {'message':'Logged out successfully'},
+            )
+        except Exception as e:
+            return Response(
+                {'error':str(e)},
+                status = status.HTTP_400_BAD_REQUEST
+            )
+
     
 class GenerateTokenView(APIView):
     permission_classes = [IsAuthenticated] 

@@ -60,6 +60,9 @@ class LoginSerializer(serializers.Serializer):
         attrs['user'] = user
         return attrs
     
+class LogoutSerialzier(serializers.Serializer):
+    refresh = serializers.CharField()
+    
 class GenerateTokenSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
