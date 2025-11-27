@@ -11,7 +11,7 @@ class Comment(models.Model):
         ('rejected', 'Rejected')
     )
 
-    content = models.TextField(blank = True)
+    content = models.TextField()
     user = models.ForeignKey(User, on_delete = models.CASCADE, related_name = 'my_comments')
     post = models.ForeignKey(Post, on_delete = models.CASCADE, related_name = 'all_comments')
     parent = models.ForeignKey('self', null = True, blank = True, on_delete = models.CASCADE, related_name = 'replies')

@@ -1,0 +1,27 @@
+# Default ignored files
+/shelf/
+workspace.xml
+
+# Editor-based HTTP Client requests
+/httpRequests/
+
+# Datasource local storage ignored files
+/dataSources/
+dataSources.local.xml
+
+# Python cache and compiled files
+*.py[cod]
+__pycache__/
+
+# Environment variables
+.env
+
+# Django stuff
+*.log
+*.pot
+db.sqlite3
+db_backup.sqlite3
+/media/
+staticfiles/
+
+
