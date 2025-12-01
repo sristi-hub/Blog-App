@@ -15,11 +15,16 @@ class CommentAdmin(admin.ModelAdmin):
     def post_title(self, obj):
         return obj.post.title
 
-    
     def parent_full_name(self, obj):
         return obj.parent.user.full_name if obj.parent else None
     
     def parent_content(self,obj):
         return obj.parent.content[:50] if obj.parent else None
+    
+    def has_add_permission(self, request):
+        return False
+    
+    def has_change_permission(self, request, obj = None):
+        return False
 
 admin.site.register(Comment, CommentAdmin)

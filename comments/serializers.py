@@ -97,3 +97,16 @@ class UserCommentsListSerialzier(serializers.ModelSerializer):
             }
         return None
     
+class CommentStatusUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ['status']
+
+    def validate_status(self, value):
+        allowed = ['approved', 'rejected', 'published']
+        if value not in allowed:
+            raise serializers.ValidationError(
+                f"Moderator can only change status to {allowed}"
+            )
+        
+        return value

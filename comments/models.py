@@ -17,7 +17,7 @@ class Comment(models.Model):
     parent = models.ForeignKey('self', null = True, blank = True, on_delete = models.CASCADE, related_name = 'replies')
     created_at = models.DateTimeField(auto_now_add = True) #set once when created
     updated_at = models.DateTimeField(auto_now = True)   #Updates on every save
-    status = models.CharField(max_length= 10, choices = STATUS_CHOICES, default = 'approved')
+    status = models.CharField(max_length= 10, choices = STATUS_CHOICES, default = 'pending')
 
    
     def __str__(self):

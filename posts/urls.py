@@ -14,6 +14,9 @@ urlpatterns = [
     path('post-delete/<int:pk>', views.PostDeleteAPIView.as_view()),
     path('post-update/<int:pk>/', views.PostEditAPIView.as_view()),
     path('postfilter/', views.FilterView.as_view()),
+
+    path('pending-post/', views.PendingPostView.as_view()),
+    path('updatestatus-post<int:pk>/', views.ModeratorPostStatusUpdateView.as_view())
 ]
 
 # router = DefaultRouter()

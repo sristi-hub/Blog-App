@@ -25,6 +25,16 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_verified = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
 
+    role = models.CharField(
+         max_length= 20,
+         choices = [
+              ('user', 'User',),
+              ('moderator', 'Moderator'),
+              ('admin', 'Admin'),
+
+         ],
+         default = "user"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

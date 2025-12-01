@@ -21,5 +21,11 @@ class PostAdmin(admin.ModelAdmin):
     def small_content(self, obj):
         return obj.content[:50] + '...' if len(obj.content) > 50 else obj.content
     
+    def has_add_permission(self, request):
+        return False
+    
+    def has_change_permission(self, request, obj = None):
+        return False
+    
 
 admin.site.register(Post, PostAdmin)

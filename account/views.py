@@ -6,7 +6,8 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User, EmailVerificationToken, ForgotPasswordToken
 from account.serializers import UserCreateSerializer, UserGetSerializer, LoginSerializer, LogoutSerialzier, VerifyEmailSerializer, GenerateTokenSerializer, PasswordResetSerializer
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
+from .permissions import IsAdmin, IsUser, IsModerator, IsUserOrModerator
 import random
 from django.core.mail import send_mail
 from django.conf import settings
@@ -81,14 +82,14 @@ class RegisterView(APIView):
         user = serializer.save()
         # return generate_tokens(user, 'Register success.')
 
-        token = generate_6digit_token()
-        create_or_update_verification_token(user, token)
-        send_verification_email(user, token)
+        # token = generate_6digit_token()
+        # create_or_update_verification_token(user, token)
+        # send_verification_email(user, token)
 
         return Response({'message':'Registered Successfully, Verfication email has been sent to your email'}, status = status.HTTP_201_CREATED)
 
 class UserView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsUserOrModerator]
     serializer_class = UserGetSerializer
     
 
@@ -111,7 +112,7 @@ class LoginView(APIView):
         return generate_tokens(user, 'Login success.')
     
 class LogoutView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsUserOrModerator]
 
     @extend_schema(request = LogoutSerialzier, tags = ['Authentication'], summary = "To Logout")
     def post(self, request):
@@ -132,7 +133,7 @@ class LogoutView(APIView):
 
     
 class GenerateTokenView(APIView):
-    permission_classes = [IsAuthenticated] 
+    permission_classes = [IsUser] 
     serializer_class = GenerateTokenSerializer
 
     @extend_schema(request=GenerateTokenSerializer, tags = ['Authentication'], summary = 'Generate email verification token')

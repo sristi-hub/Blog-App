@@ -1,10 +1,11 @@
 from django.shortcuts import render
 from .models import Post, Category
-from .serializers import PostListSerializer, PostCreateSerializer, CategorySerializer, EmptySerializer
+from .serializers import PostListSerializer, PostCreateSerializer, CategorySerializer, EmptySerializer, ModeratorPostStatusUpdateSerialzier
 from rest_framework import viewsets 
 from rest_framework.views import APIView
 from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny
+from account.permissions import IsAdmin, IsUser, IsModerator, IsModeratorOrAdmin, IsUserOrModerator
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework.request import Request
@@ -14,9 +15,10 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .filters import PostFilter
 
 
+
 # Create your views here.
 class CategoryViews(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsUserOrModerator]
     serializer_class = CategorySerializer
 
     @extend_schema(request = CategorySerializer, tags = ['Posts'], summary = 'Get post categories')
@@ -60,7 +62,7 @@ class RetrievePost(generics.RetrieveAPIView):
 @extend_schema(responses = PostListSerializer, tags = ['Posts'], summary = 'View user published posts')
 class User_Pub_PostListAPIView(generics.ListAPIView):
     queryset = Post.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsUser]
     serializer_class = PostListSerializer
 
     def get_queryset(self):
@@ -71,7 +73,7 @@ class User_Pub_PostListAPIView(generics.ListAPIView):
 @extend_schema(responses = PostListSerializer, tags = ['Posts'], summary = 'View user draft posts')
 class User_Draft_PostListAPIView(generics.ListAPIView):
     queryset = Post.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsUser]
     serializer_class = PostListSerializer
 
     def get_queryset(self):
@@ -107,7 +109,7 @@ class User_Draft_PostListAPIView(generics.ListAPIView):
 class PostCreateAPIView(generics.CreateAPIView):
     queryset = Post.objects.all()
     serializer_class = PostCreateSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsUser]
     
     def perform_create(self, serializer):
         serializer.save(author = self.request.user)
@@ -120,7 +122,7 @@ class PostCreateAPIView(generics.CreateAPIView):
 )
 class PostDeleteAPIView(generics.DestroyAPIView):
     queryset = Post.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsUser]
     serializer_class = EmptySerializer
 
     def get_queryset(self):
@@ -131,7 +133,7 @@ class PostDeleteAPIView(generics.DestroyAPIView):
 @extend_schema(request = PostCreateSerializer, responses = PostListSerializer, tags = ['Posts'], summary = 'Edit post')   
 class PostEditAPIView(generics.UpdateAPIView):
     queryset = Post.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsUser]
     serializer_class = PostCreateSerializer
 
     def get_queryset(self):
@@ -148,7 +150,40 @@ class FilterView(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend]
     filterset_class = PostFilter
 
+class PendingPostView(APIView):
+    permission_classes = [IsModeratorOrAdmin]
 
+    @extend_schema(responses = PostListSerializer, tags = ['Moderator'], summary = "To view pending post")
+    def get(self, request):
+        posts = Post.objects.filter(status = 'pending')
+        serializer = PostListSerializer(posts, many = True)
+        count = posts.count()
+        return Response({
+            'count':count,
+            'posts':serializer.data
+        },
+        status = status.HTTP_200_OK)
+
+class ModeratorPostStatusUpdateView(APIView):
+    permission_classes = [IsModeratorOrAdmin]
+    serializer_class = ModeratorPostStatusUpdateSerialzier
+
+    @extend_schema(tags = ['Moderator'], summary = "To update pending post status")
+    def patch(self, request, pk):
+        try:
+            post = Post.objects.get(id = pk)
+        except Post.DoesNotExist:
+            return Response(
+                {'message':'Post doesnot exist'},
+                 status = status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = ModeratorPostStatusUpdateSerialzier(post, data = request.data, partial = True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status = status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 
 
 

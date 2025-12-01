@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny
+from account.permissions import IsUser
 from posts.models import Post
 from account.models import User
 from .models import PostLike, Bookmark, Follow
@@ -11,7 +12,7 @@ from drf_spectacular.utils import extend_schema
 
 # Create your views here.
 class LikePostView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsUser]
 
     @extend_schema(tags = ['Interactions'], summary = "To like the post")
     def post(self, request, post_id):
@@ -63,7 +64,7 @@ class PostLikeView(APIView):
             status = status.HTTP_200_OK)
     
 class UserLikeView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsUser]
     serializer_classes = UserLikeSerializer
 
     @extend_schema(responses = UserLikeSerializer, tags = ['Interactions'], summary = "To get user all likes")
@@ -81,7 +82,7 @@ class UserLikeView(APIView):
             status = status.HTTP_200_OK)
 
 class PostBookmarkCreateView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsUser]
 
     @extend_schema(tags = ['Interactions'], summary = "To bookmark the post")
     def post(self, request, post_id):
@@ -109,7 +110,7 @@ class PostBookmarkCreateView(APIView):
         )
     
 class UserBookmarkView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsUser]
     serializer_classes = UserBookmarkSerializer
 
     @extend_schema(responses = UserBookmarkSerializer, tags = ['Interactions'], summary = "To list user all bookmarks")
@@ -125,7 +126,7 @@ class UserBookmarkView(APIView):
             status = status.HTTP_200_OK)
     
 class FollowView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsUser]
 
     @extend_schema(tags = ['Interactions'], summary = "To follow the author")
     def post(self, request, author_id):
@@ -152,7 +153,7 @@ class FollowView(APIView):
             )
 
 class UserFollowersView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsUser]
 
     @extend_schema(responses = UserFollowerSerializer, tags = ['Interactions'], summary = "To get user followers")
     def get(self, request):
@@ -170,7 +171,7 @@ class UserFollowersView(APIView):
         )
     
 class UserFollowingView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsUser]
 
     @extend_schema(responses = UserFollowingSerializer, tags = ['Interactions'], summary = "To get user followings")
     def get(self, request):

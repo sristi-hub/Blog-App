@@ -8,9 +8,17 @@ class PostLikeAdmin(admin.ModelAdmin):
     search_fields = ('user__full_name', 'post__title')
     ordering = ("-created_at",)
     readonly_fields = ('created_at', 'updated_at')
+
     def post_title(self, obj):
         return obj.post.title[:50] if len(obj.post.title) > 50 else obj.post.title 
+    
+    def has_add_permission(self, request):
+        return False
+    
+    def has_change_permission(self, request, obj = None):
+        return False
 admin.site.register(PostLike, PostLikeAdmin)
+
 
 class FollowAdmin(admin.ModelAdmin):
     list_display = ('user', 'author_name', 'created_at')
@@ -21,7 +29,14 @@ class FollowAdmin(admin.ModelAdmin):
 
     def author_name(self, obj):
         return obj.author.full_name
+    
+    def has_add_permission(self, request):
+        return False
+    
+    def has_change_permission(self, request, obj = None):
+        return False
 admin.site.register(Follow, FollowAdmin)
+
 
 class BookmarkAdmin(admin.ModelAdmin):
     list_display = ('user', 'post_title', 'created_at')
@@ -32,4 +47,9 @@ class BookmarkAdmin(admin.ModelAdmin):
 
     def post_title(self, obj):
         return obj.post.title[:50] if len(obj.post.title) > 50 else obj.post.title 
+    
+    def has_add_permission(self, request):
+        return False
+    def has_change_permission(self, request, obj = None):
+        return False
 admin.site.register(Bookmark, BookmarkAdmin)

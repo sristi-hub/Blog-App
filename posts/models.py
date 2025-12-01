@@ -13,8 +13,13 @@ class Category(models.Model) :
     
 class Post(models.Model):
     STATUS_CHOICES = [
+        #For User
         ('draft', 'Draft'),
-        ('published', 'Published')
+        ('published', 'Published'),
+        # For Moderator
+        ('pending', 'Pending Moderation'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
 
     ]
 

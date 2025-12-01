@@ -20,6 +20,19 @@ class PostCreateSerializer(serializers.ModelSerializer):
             'category',
             'status'
         ]
+
+    def validate_status(self, value):
+        user = self.context['request'].user
+
+        #User can only change status to either 'draft' or 'pending'
+        if user.role == 'user':
+            allowed = ['draft', 'pending']
+            if value not in allowed:
+                raise serializers.ValidationError(
+                f"Users can only set status to {allowed}" 
+                )
+
+        return value   
     
         
 class PostListSerializer(serializers.ModelSerializer):
@@ -50,3 +63,16 @@ class PostListSerializer(serializers.ModelSerializer):
 
 class EmptySerializer(serializers.Serializer):
     pass
+
+class ModeratorPostStatusUpdateSerialzier(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = ['status']
+
+    def validate_status(self, value):
+        allowed = ['approved', 'rejected', 'published']        
+        if value not in allowed:
+            raise serializers.ValidationError(
+            f"Moderator can only set status to {allowed}")
+
+        return value
